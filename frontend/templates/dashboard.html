@@ -1,0 +1,245 @@
+
+{% extends "base.html" %}
+
+{% block title %}Dashboard | EcoTrack{% endblock %}
+{% block page_heading %}Dashboard Overview{% endblock %}
+
+{% block content %}
+
+<div class="section-heading" style="margin-top: 0;">
+    <div>
+        <h2>Welcome to EcoTrack</h2>
+        <p>Here is an overview of your electronic waste records.</p>
+    </div>
+    <a href="{{ url_for('add_record') }}" class="btn">＋ Add Record</a>
+</div>
+
+<!-- Dashboard filters -->
+<form method="GET" action="{{ url_for('dashboard') }}" class="filters">
+    <div class="field">
+        <label for="category">Category</label>
+        <select name="category" id="category">
+            <option value="">All Categories</option>
+            {% for item in categories %}
+                <option value="{{ item }}"
+                    {% if selected_category == item %}selected{% endif %}>
+                    {{ item }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="field">
+        <label for="condition">Condition</label>
+        <select name="condition" id="condition">
+            <option value="">All Conditions</option>
+            {% for item in conditions %}
+                <option value="{{ item }}"
+                    {% if selected_condition == item %}selected{% endif %}>
+                    {{ item }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="field">
+        <label for="location">Location</label>
+        <input type="text" name="location" id="location"
+               value="{{ selected_location }}" placeholder="Enter location">
+    </div>
+
+    <div class="field">
+        <label for="search">Search records</label>
+        <input type="text" name="search" id="search"
+               value="{{ search }}" placeholder="Item, brand, model...">
+    </div>
+
+    <div class="field" style="justify-content: end;">
+        <button type="submit" class="btn">Apply Filters</button>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+            Reset Filters
+        </a>
+    </div>
+</form>
+
+<!-- Summary cards -->
+<div class="stats-grid">
+
+    <div class="stat-card">
+        <div class="stat-icon">▤</div>
+        <div class="stat-label">Total Records</div>
+        <h2>{{ "{:,}".format(stats.total_records) }}</h2>
+        <small>Matching records in database</small>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">♻</div>
+        <div class="stat-label">Total Quantity</div>
+        <h2>{{ "{:,.0f}".format(stats.quantity) }}</h2>
+        <small>Electronic items recorded</small>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">⚖</div>
+        <div class="stat-label">Total E-Waste Weight</div>
+        <h2>{{ "{:,.2f}".format(stats.weight) }}</h2>
+        <small>Weight in kilograms (kg)</small>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">$</div>
+        <div class="stat-label">Estimated Recycled Value</div>
+        <h2>${{ "{:,.2f}".format(stats.price) }}</h2>
+        <small>Sum of recorded recycled prices</small>
+    </div>
+
+</div>
+
+<!-- Charts -->
+<div class="section-heading">
+    <div>
+        <h2>E-Waste Analytics</h2>
+        <p>Visual breakdown of your selected records.</p>
+    </div>
+</div>
+
+<div class="charts-grid">
+
+    <div class="panel">
+        <h2>Records by Category</h2>
+        <p>Number of records in each category.</p>
+        <div class="chart-box">
+            <canvas id="categoryChart"></canvas>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>Condition Distribution</h2>
+        <p>Condition of recorded electronic items.</p>
+        <div class="chart-box">
+            <canvas id="conditionChart"></canvas>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>Top Locations</h2>
+        <p>Locations with the highest record counts.</p>
+        <div class="chart-box">
+            <canvas id="locationChart"></canvas>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>Total Weight by Category</h2>
+        <p>Recorded e-waste weight by category in kg.</p>
+        <div class="chart-box">
+            <canvas id="weightChart"></canvas>
+        </div>
+    </div>
+
+</div>
+
+<div class="section-heading">
+    <div>
+        <h2>Manage Your Records</h2>
+        <p>View, edit, search and maintain e-waste entries.</p>
+    </div>
+    <a href="{{ url_for('records_page') }}" class="btn btn-secondary">
+        View All Records →
+    </a>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const categoryLabels = {{ category_data | map(attribute='_id') | list | tojson }};
+    const categoryCounts = {{ category_data | map(attribute='count') | list | tojson }};
+    const categoryWeights = {{ category_data | map(attribute='weight') | list | tojson }};
+
+    const conditionLabels = {{ condition_data | map(attribute='_id') | list | tojson }};
+    const conditionCounts = {{ condition_data | map(attribute='count') | list | tojson }};
+
+    const locationLabels = {{ location_data | map(attribute='_id') | list | tojson }};
+    const locationCounts = {{ location_data | map(attribute='count') | list | tojson }};
+
+    Chart.defaults.font.family = "Inter, Arial, sans-serif";
+    Chart.defaults.color = "#718078";
+
+    new Chart(document.getElementById("categoryChart"), {
+        type: "bar",
+        data: {
+            labels: categoryLabels,
+            datasets: [{
+                label: "Records",
+                data: categoryCounts,
+                backgroundColor: "#198754",
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+
+    new Chart(document.getElementById("conditionChart"), {
+        type: "doughnut",
+        data: {
+            labels: conditionLabels,
+            datasets: [{
+                data: conditionCounts,
+                backgroundColor: ["#198754", "#70bd8c", "#f2c46d", "#9ba9a0"],
+                borderWidth: 2,
+                borderColor: "#ffffff"
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: "bottom" } }
+        }
+    });
+
+    new Chart(document.getElementById("locationChart"), {
+        type: "bar",
+        data: {
+            labels: locationLabels,
+            datasets: [{
+                label: "Records",
+                data: locationCounts,
+                backgroundColor: "#4b9d70",
+                borderRadius: 6
+            }]
+        },
+        options: {
+            indexAxis: "y",
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { x: { beginAtZero: true } }
+        }
+    });
+
+    new Chart(document.getElementById("weightChart"), {
+        type: "bar",
+        data: {
+            labels: categoryLabels,
+            datasets: [{
+                label: "Weight (kg)",
+                data: categoryWeights,
+                backgroundColor: "#83c69a",
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+</script>
+{% endblock %}

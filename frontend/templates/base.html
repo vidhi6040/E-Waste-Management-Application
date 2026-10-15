@@ -1,0 +1,93 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}E-Waste Management{% endblock %}</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="app-layout">
+
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon">♻</div>
+            <div>
+                <h2>EcoTrack</h2>
+                <p>E-Waste Management</p>
+            </div>
+        </div>
+
+        <div class="nav-label">MAIN MENU</div>
+
+        <nav class="navigation">
+            <a href="{{ url_for('dashboard') }}"
+               class="{% if request.endpoint == 'dashboard' %}active{% endif %}">
+                <span>▦</span> Dashboard
+            </a>
+
+            <a href="{{ url_for('records_page') }}"
+               class="{% if request.endpoint == 'records_page' %}active{% endif %}">
+                <span>▤</span> Manage Records
+            </a>
+
+            <a href="{{ url_for('add_record') }}"
+               class="{% if request.endpoint == 'add_record' %}active{% endif %}">
+                <span>＋</span> Add E-Waste
+            </a>
+
+            <a href="{{ url_for('export_csv') }}">
+                <span>⇩</span> Export CSV
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <span class="status-dot"></span>
+            MongoDB Database
+            <small>Local connection</small>
+        </div>
+    </aside>
+
+    <main class="main-area">
+        <header class="topbar">
+            <div>
+                <h1>{% block page_heading %}Dashboard{% endblock %}</h1>
+                <p>Monitor, manage and track electronic waste.</p>
+            </div>
+
+            <div class="topbar-tag">
+                <span class="status-dot"></span> System Active
+            </div>
+        </header>
+
+        <section class="page-content">
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+
+        </section>
+
+        <footer class="footer">
+            E-Waste Management System · Powered by Python & MongoDB
+        </footer>
+    </main>
+
+</div>
+
+{% block scripts %}{% endblock %}
+</body>
+</html>

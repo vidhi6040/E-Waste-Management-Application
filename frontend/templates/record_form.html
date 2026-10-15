@@ -1,0 +1,166 @@
+
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }} | EcoTrack{% endblock %}
+{% block page_heading %}{{ page_title }}{% endblock %}
+
+{% block content %}
+
+<div class="panel form-panel">
+    <h2>Electronic Waste Details</h2>
+    <p>Enter the item information below. Fields marked * are required.</p>
+
+    <form method="POST">
+        <div class="form-grid">
+
+            <div class="field">
+                <label for="Item_Name">Item Name *</label>
+                <input type="text" id="Item_Name" name="Item_Name"
+                       value="{{ record.get('Item_Name', '') }}" required>
+            </div>
+
+            <div class="field">
+                <label for="Brand">Brand *</label>
+                <input type="text" id="Brand" name="Brand"
+                       value="{{ record.get('Brand', '') }}" required>
+            </div>
+
+            <div class="field">
+                <label for="Model">Model *</label>
+                <input type="text" id="Model" name="Model"
+                       value="{{ record.get('Model', '') }}" required>
+            </div>
+
+            <div class="field">
+                <label for="Category">Category *</label>
+                <select id="Category" name="Category" required>
+                    <option value="">Select category</option>
+                    {% for item in categories %}
+                        <option value="{{ item }}"
+                            {% if record.get('Category', '') == item %}selected{% endif %}>
+                            {{ item }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="field">
+                <label for="Year_of_Purchase">Year of Purchase *</label>
+                <input type="number" id="Year_of_Purchase"
+                       name="Year_of_Purchase" min="1900" max="2100"
+                       value="{{ record.get('Year_of_Purchase', '') }}" required>
+            </div>
+
+            <div class="field">
+                <label for="Condition">Condition *</label>
+                <select id="Condition" name="Condition" required>
+                    <option value="">Select condition</option>
+                    {% for item in conditions %}
+                        <option value="{{ item }}"
+                            {% if record.get('Condition', '') == item %}selected{% endif %}>
+                            {{ item }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="field">
+                <label for="Quantity">Quantity *</label>
+                <input type="number" id="Quantity" name="Quantity"
+                       min="1" step="1"
+                       value="{{ record.get('Quantity', 1) }}" required>
+            </div>
+
+            <div class="field">
+                <label for="Weight_kg">Weight (kg) *</label>
+                <input type="number" id="Weight_kg" name="Weight_kg"
+                       min="0" step="any"
+                       value="{{ record.get('Weight_kg', 0) }}" required>
+            </div>
+
+            <div class="field">
+                <label for="Recycle_Method">Recycling Method *</label>
+                <select id="Recycle_Method" name="Recycle_Method" required>
+                    <option value="">Select method</option>
+                    {% for item in methods %}
+                        <option value="{{ item }}"
+                            {% if record.get('Recycle_Method', '') == item %}selected{% endif %}>
+                            {{ item }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="field">
+                <label for="Location">Location *</label>
+                <input type="text" id="Location" name="Location"
+                       value="{{ record.get('Location', '') }}" required>
+            </div>
+
+            <div class="field">
+                <label for="Recycling_Facility">Recycling Facility</label>
+                <input type="text" id="Recycling_Facility"
+                       name="Recycling_Facility"
+                       value="{{ record.get('Recycling_Facility', '') }}">
+            </div>
+
+            <div class="field">
+                <label for="Collection_Date">Collection Date</label>
+                <input type="date" id="Collection_Date" name="Collection_Date"
+                       value="{{ record.get('Collection_Date', '') }}">
+            </div>
+
+            <div class="field">
+                <label for="End_Use">End Use</label>
+                <input type="text" id="End_Use" name="End_Use"
+                       value="{{ record.get('End_Use', '') }}">
+            </div>
+
+            <div class="field">
+                <label for="Recycled_Price_USD">Recycled Price (USD) *</label>
+                <input type="number" id="Recycled_Price_USD"
+                       name="Recycled_Price_USD" min="0" step="any"
+                       value="{{ record.get('Recycled_Price_USD', 0) }}" required>
+            </div>
+
+            <div class="field">
+                <label for="Toxic_Components">Toxic Components</label>
+                <input type="text" id="Toxic_Components"
+                       name="Toxic_Components"
+                       value="{{ record.get('Toxic_Components', '') }}">
+            </div>
+
+            <div class="field">
+                <label for="E-Waste_Collector">E-Waste Collector</label>
+                <input type="text" id="E-Waste_Collector"
+                       name="E-Waste_Collector"
+                       value="{{ record.get('E-Waste_Collector', '') }}">
+            </div>
+
+            <div class="field">
+                <label for="Carbon_Footprint">Carbon Footprint</label>
+                <input type="text" id="Carbon_Footprint"
+                       name="Carbon_Footprint"
+                       value="{{ record.get('Carbon_Footprint', '') }}">
+            </div>
+
+            <div class="field">
+                <label for="Exported_To">Exported To</label>
+                <input type="text" id="Exported_To" name="Exported_To"
+                       value="{{ record.get('Exported_To', '') }}">
+            </div>
+
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn">
+                {% if record %}Save Changes{% else %}Add Record{% endif %}
+            </button>
+
+            <a href="{{ url_for('records_page') }}"
+               class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
